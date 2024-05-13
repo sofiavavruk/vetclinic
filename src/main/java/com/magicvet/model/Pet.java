@@ -9,12 +9,14 @@ public abstract class Pet {
     private String name;
     private String ownerName;
 
+
     public void setType(String type){
         this.type = type;
     }
     public String getType(){
         return type;
     }
+
 
     @Override
     public String toString() {

@@ -3,26 +3,36 @@ package main.java.com.magicvet.model;
 import java.util.Objects;
 
 public class Dog extends Pet{
-
-    public static final String XS = "xs";
-    public static final String S = "s";
-    public static final String M = "m";
-    public static final String L = "l";
-    public static final String XL = "xl";
-
-    public String size;
+    public Size size;
 
     public Dog(){
     }
-    public Dog(String size){
+    public Dog(Size size){
         this.size = size;
     }
 
-    public void setSize(String size){
+    public void setSize(Size size){
         this.size = size;
     }
-    public String getSize(){
+    public Size getSize(){
         return size;
+    }
+
+    public enum Size{
+        xs(1),
+        s(2),
+        m(3),
+        l(4),
+        xl(5),
+        unknown(0);
+        private final int value;
+        Size(int value){
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
 
     @Override
