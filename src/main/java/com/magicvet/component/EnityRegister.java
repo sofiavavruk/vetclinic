@@ -7,9 +7,10 @@ import main.java.com.magicvet.service.ClientService;
 import main.java.com.magicvet.service.PetService;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class EnityRegister { //орфографічна помилка
 
@@ -20,13 +21,12 @@ public class EnityRegister { //орфографічна помилка
         List<Client> clients = new ArrayList<>();
         String message = "Do you want to register more clients? (y/n)";
         do {
-            Client client = addClient();
-            if(client != null){
-                clients.add(client);
-            }
+            Optional <Client> client = addClient();
+            client.ifPresent(clients :: add);
         }while (verifyRepeating(message));
 
-        Map<Client.Location, List<Client>> clientsByLocation = groupClients(clients);
+        Map<Client.Location, List<Client>> clientsByLocation = clients.stream()
+                .collect(Collectors.groupingBy(Client :: getLocation));
         printClients(clientsByLocation);
     }
 
@@ -39,37 +39,11 @@ public class EnityRegister { //орфографічна помилка
         }
     }
 
-    private Map<Client.Location, List<Client>> groupClients(List<Client> clients){
-        List<Client> fromKyiv = new ArrayList<>();
-        List<Client> fromLviv = new ArrayList<>();
-        List<Client> fromOdesa = new ArrayList<>();
-        List<Client> unknownLocation = new ArrayList<>();
 
-        for(Client client : clients){
-            switch (client.getLocation()){
-                case KYIV -> fromKyiv.add(client);
-                case LVIV -> fromLviv.add(client);
-                case ODESA -> fromOdesa.add(client);
-                case  UNKNOWN -> unknownLocation.add(client);
-            }
-        }
+    private Optional <Client> addClient(){
+        Optional <Client> client = clientService.registerNewClient();
+        client.ifPresent(this::registerPet);
 
-        Map<Client.Location, List<Client>> clientsByLocation = new HashMap<>();
-        clientsByLocation.put(Client.Location.KYIV, fromKyiv);
-        clientsByLocation.put(Client.Location.LVIV, fromLviv);
-        clientsByLocation.put(Client.Location.ODESA, fromOdesa);
-        clientsByLocation.put(Client.Location.UNKNOWN, unknownLocation);
-
-        return clientsByLocation;
-    }
-
-    private Client addClient(){
-        Client client = clientService.registerNewClient();
-
-        if (client != null){
-            registerPet(client);
-            System.out.println(client);
-        }
         return client;
     }
 
@@ -77,6 +51,7 @@ public class EnityRegister { //орфографічна помилка
         String message = "Do you want to add more pets for the current client? (y/n)";
         do {
             addPet(client);
+            System.out.println(client);
         } while (verifyRepeating(message));
     }
 
